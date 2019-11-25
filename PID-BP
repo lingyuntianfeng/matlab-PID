@@ -1,23 +1,23 @@
 clear all;
 close all;
 
-xite=0.25;  % Ñ§Ï°ËÙÂÊ
-alfa=0.05;  % ¹ßĞÔÏµÊı
+xite=0.25;  % å­¦ä¹ é€Ÿç‡
+alfa=0.05;  % æƒ¯æ€§ç³»æ•°
 
-S=1;     %ĞÅºÅÀàĞÍ
+S=1;     %ä¿¡å·ç±»å‹
 
-IN=4;H=5;Out=3;     %ÍøÂç½á¹¹ 
-if S==1     %½×Ô¾
+IN=4;H=5;Out=3;     %ç½‘ç»œç»“æ„ 
+if S==1     %é˜¶è·ƒ
 wi=[-0.6394 -0.2696 -0.3756 -0.7023;
 -0.8603 -0.2013 -0.5024 -0.2596;
 -1.0749 0.5543 -1.6820 -0.5437;
 -0.3625 -0.0724 -0.6463 -0.2859;
-0.1425 0.0279 -0.5406 -0.7660];    %Òş²ã³õÊ¼È¨ÖµËæ»ú[-0.5,0.5]
+0.1425 0.0279 -0.5406 -0.7660];    %éšå±‚åˆå§‹æƒå€¼éšæœº[-0.5,0.5]
     %wi=0.50*rands(H,IN);
 wi_1=wi;wi_2=wi;wi_3=wi;
 wo=[0.7576 0.2616 0.5820 -0.1416 -0.1325;
 -0.1146 0.2949 0.8352 0.2205 0.4508;
-0.7201 0.4566 0.7672 0.4962 0.3632]; %Êä³ö²ã³õÊ¼È¨ÖµËæ»ú[-0.5,0.5]
+0.7201 0.4566 0.7672 0.4962 0.3632]; %è¾“å‡ºå±‚åˆå§‹æƒå€¼éšæœº[-0.5,0.5]
     %wo=0.50*rands(Out,H);
 wo_1=wo;wo_2=wo;wo_3=wo;
 end
@@ -36,31 +36,31 @@ wo=[1.0438 0.5478 0.8682 0.1446 0.1537;
     %wo=0.50*rands(Out,H);
 wo_1=wo;wo_2=wo;wo_3=wo;
 end
-%³õÊ¼»¯
+%åˆå§‹åŒ–
 x=[0,0,0];
 u_1=0;u_2=0;u_3=0;u_4=0;u_5=0;
 y_1=0;y_2=0;y_3=0;
 
-Oh=zeros(H,1);   %Output from NN middle layer  Òş²ãÊä³ö
-I = Oh;    %Input to NN middle layer           Òş²ãÊäÈë
+Oh=zeros(H,1);   %Output from NN middle layer  éšå±‚è¾“å‡º
+I = Oh;    %Input to NN middle layer           éšå±‚è¾“å…¥
 error_2 = 0;
 error_1 = 0;
 
 ts = 0.001;
 for k =1:1:6000
 time(k)=k*ts;
-% ÊäÈëÁ¿
+% è¾“å…¥é‡
 if S==1  
 rin(k)=1.0;   
 elseif S==2
 rin(k)=sin(1*2*pi*k*ts);
 end
 
-%Unlinear model  ·ÇÏßĞÔÄ£ĞÍ
-a(k)=1.2*(1-0.8*exp(-0.1*k));   %a(k)ÎªÂıÊ±±ä
+%Unlinear model  éçº¿æ€§æ¨¡å‹
+a(k)=1.2*(1-0.8*exp(-0.1*k));   %a(k)ä¸ºæ…¢æ—¶å˜
 yout(k)=a(k)*4*y_1/(1+y_1^2)+u_1;
 
-error(k)=rin(k)-yout(k);    %Îó²î
+error(k)=rin(k)-yout(k);    %è¯¯å·®
 
 xi=[rin(k),yout(k),error(k),1];
 
@@ -69,29 +69,29 @@ x(2)=error(k);
 x(3)=error(k)-2*error_1+error_2;
 
 epid=[x(1);x(2);x(3)];
-I=xi*wi';    % Òş²ãÊäÈë
+I=xi*wi';    % éšå±‚è¾“å…¥
 for j=1:1:H
-Oh(j)=(exp(I(j))-exp(-I(j)))/(exp(I(j))+exp(-I(j))); %Middle Layer  Òş²ãÊä³ö
+Oh(j)=(exp(I(j))-exp(-I(j)))/(exp(I(j))+exp(-I(j))); %Middle Layer  éšå±‚è¾“å‡º
 end
-K=wo*Oh; %Output Layer  µ±Ç°Êä³ö²ãÈ¨Öµ
+K=wo*Oh; %Output Layer  å½“å‰è¾“å‡ºå±‚æƒå€¼
 for l=1:1:Out
-K(l)=exp(K(l))/(exp(K(l))+exp(-K(l))); %Getting kp,ki,kd  ¼¤»îÊä³ö
+K(l)=exp(K(l))/(exp(K(l))+exp(-K(l))); %Getting kp,ki,kd  æ¿€æ´»è¾“å‡º
 end
 kp(k)=K(1);ki(k)=K(2);kd(k)=K(3);
 Kpid=[kp(k),ki(k),kd(k)];
 
-du(k)=Kpid*epid;  % ¿ØÖÆÁ¿±ä»¯Á¿
-u(k)=u_1+du(k);   % ¿ØÖÆÊä³öÁ¿
-if u(k) >= 20 % Restricting the output of controller  Êä³öÏŞ·ù
+du(k)=Kpid*epid;  % æ§åˆ¶é‡å˜åŒ–é‡
+u(k)=u_1+du(k);   % æ§åˆ¶è¾“å‡ºé‡
+if u(k) >= 20 % Restricting the output of controller  è¾“å‡ºé™å¹…
 u(k)=20;
 end
 if u(k)<=-20
 u(k)=-20;
 end
 
-dyu(k)=sign((yout(k)-y_1)/(u(k)-u_1+0.0000001)); % y(k)±ä»¯Á¿
+dyu(k)=sign((yout(k)-y_1)/(u(k)-u_1+0.0000001)); % y(k)å˜åŒ–é‡
 
-%Output layer     Êä³ö²ã
+%Output layer     è¾“å‡ºå±‚
 for j=1:1:Out
 dK(j)=2/(exp(K(j))+exp(-K(j)))^2;
 end
@@ -104,8 +104,8 @@ for i=1:1:H
 d_wo=xite*delta3(l)*Oh(i)+alfa*(wo_1-wo_2);
 end
 end
-wo=wo_1+d_wo+alfa*(wo_1-wo_2);    %Êä³ö²ãÈ¨Öµ¸üĞÂ
-%Hidden layer    Òş²ã
+wo=wo_1+d_wo+alfa*(wo_1-wo_2);    %è¾“å‡ºå±‚æƒå€¼æ›´æ–°
+%Hidden layer    éšå±‚
 for i=1:1:H
 dO(i)=4/(exp(I(i))+exp(-I(i)))^2;
 end
@@ -115,9 +115,9 @@ delta2(i)=dO(i)*segma(i);
 end
 
 d_wi=xite*delta2'*xi;
-wi=wi_1+d_wi+alfa*(wi_1-wi_2);  % Òş²ãÈ¨Öµ¸üĞÂ
+wi=wi_1+d_wi+alfa*(wi_1-wi_2);  % éšå±‚æƒå€¼æ›´æ–°
 
-    %Parameters Update  ²ÎÊı¸üĞÂ ²¢ ´æ´¢ÀúÊ·Öµ
+    %Parameters Update  å‚æ•°æ›´æ–° å¹¶ å­˜å‚¨å†å²å€¼
 u_5=u_4;u_4=u_3;u_3=u_2;u_2=u_1;u_1=u(k);
 y_2=y_1;y_1=yout(k);
 
