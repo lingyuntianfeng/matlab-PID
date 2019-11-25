@@ -2,14 +2,14 @@
 clear all;
 close all;
 
-ts=0.001;                      %²ÉÑùÊ±¼äÊÇts=0.001
-sys=tf(1770,[1,60,1770]);      %ÏµÍ³´«µİº¯Êı
-dsys=c2d(sys,ts,'z');          %Á¬ĞøµÄÊ±¼äÄ£ĞÍ×ª»»³ÉÀëÉ¢µÄÊ±¼äÄ£ĞÍ
-[num,den]=tfdata(dsys,'v');    % numÎª·Ö×ÓÏµÊı£¬denÎª·ÖÄ¸ÏµÊı£¬»ñµÃZ´«µİº¯ÊıµÄ·Ö×ÓºÍ·ÖÄ¸
+ts=0.001;                      %é‡‡æ ·æ—¶é—´æ˜¯ts=0.001
+sys=tf(1770,[1,60,1770]);      %ç³»ç»Ÿä¼ é€’å‡½æ•°
+dsys=c2d(sys,ts,'z');          %è¿ç»­çš„æ—¶é—´æ¨¡å‹è½¬æ¢æˆç¦»æ•£çš„æ—¶é—´æ¨¡å‹
+[num,den]=tfdata(dsys,'v');    % numä¸ºåˆ†å­ç³»æ•°ï¼Œdenä¸ºåˆ†æ¯ç³»æ•°ï¼Œè·å¾—Zä¼ é€’å‡½æ•°çš„åˆ†å­å’Œåˆ†æ¯
 
-alfa=0.04;                     %¹ßĞÔÏµÊı
+alfa=0.04;                     %æƒ¯æ€§ç³»æ•°
 
-N=500;C=5;                     %NÎªÁ¿»¯ÏµÊı  CÎª·º»¯²ÎÊı
+N=500;C=5;                     %Nä¸ºé‡åŒ–ç³»æ•°  Cä¸ºæ³›åŒ–å‚æ•°
 w=zeros(N+C,1);
 w_1=w;w_2=w;d_w=w;
 
@@ -24,7 +24,7 @@ if s==1  %Sine Signal
     A=0.50;
     Smin=-A;
     Smax=A;
-    xite =0.10;        %Ñ§Ï°ÂÊ
+    xite =0.10;        %å­¦ä¹ ç‡
     kp=25;
     ki=0.0;
     kd=0.28;
@@ -54,8 +54,8 @@ elseif s==4  %Random Signal
     kd=0.28; 
 end
 
-%Coding Input Value  ÊäÈëÁ¿»¯
-dvi=(Smax-Smin)/(N-1);            % N-1 ·ÀÖ¹³ıÊıÎª0
+%Coding Input Value  è¾“å…¥é‡åŒ–
+dvi=(Smax-Smin)/(N-1);            % N-1 é˜²æ­¢é™¤æ•°ä¸º0
 
 for i=1:1:C     %C size
     v(i)=Smin;
@@ -74,7 +74,7 @@ for k=1:1:200
     if s==1
         rin(k)=A*sin(4*2*pi*k*ts);         % Sin Signal
     elseif s==2
-        rin(k)=A*sign(sin(2*2*pi*k*ts));   % Square  Signal  ·½²¨ĞÅºÅ
+        rin(k)=A*sign(sin(2*2*pi*k*ts));   % Square  Signal  æ–¹æ³¢ä¿¡å·
     elseif s==3
         rin(k)=1;                          %Step Signal
     elseif s==4
@@ -89,7 +89,7 @@ for k=1:1:200
         end
     end
     
-    yout(k)=-den(2)*y_1-den(3)*y_2+num(2)*u_1+num(3)*u_2;        %²î·ÖÊä³ö
+    yout(k)=-den(2)*y_1-den(3)*y_2+num(2)*u_1+num(3)*u_2;        %å·®åˆ†è¾“å‡º
     error(k)=rin(k)-yout(k);
     
     %CMAC Neural Network Controller 
@@ -98,23 +98,23 @@ for k=1:1:200
     %PID controller
     up(k)=kp*x(1)+kd*x(2)+ki*x(3);
     
-    MM= 2;         %Ä£Ê½Ñ¡Ôñ
+    MM= 2;         %æ¨¡å¼é€‰æ‹©
     if MM==1      %Only using PID Control
         u(k)= up(k);
     elseif MM==2   %Total control output
         u(k)=up(k)+un(k);
     end
-    if k==150  %Disturbance  ÈËÎª¸ÉÈÅ
+    if k==150  %Disturbance  äººä¸ºå¹²æ‰°
         u(k)=u(k)+5.0;
     end
-    %Êä³öÏŞ·ù
+    %è¾“å‡ºé™å¹…
     if u(k)>=10  
         u(k)=10;
     end
     if u(k)<=-10
         u(k)=-10;
     end
-    % Update NN Weight  ¸üĞÂÍøÂçÈ¨Öµ
+    % Update NN Weight  æ›´æ–°ç½‘ç»œæƒå€¼
     
     if s==1|s==4
         d_w=xite*(u(k)-un(k))/C;     %Sin Signal
@@ -124,14 +124,14 @@ for k=1:1:200
     
     w=w_1+d_w+alfa*(w_1-w_2);
     
-    %Parameters  Update ²ÎÊı¸üĞÂ
+    %Parameters  Update å‚æ•°æ›´æ–°
     w_3=w_2;w_2=w_1;w_1=w;
     u_2=u_1;u_1=u(k);
     y_2=y_1;y_1=yout(k);
     
-    x(1)=error(k);               % Calculating P  ¼ÆËã P
-    x(2)=(error(k)-error_1)/ts;  % Calculating D  ¼ÆËã D
-    x(3)=x(3)+error(k)*ts;       % Calculating I  ¼ÆËã I
+    x(1)=error(k);               % Calculating P  è®¡ç®— P
+    x(2)=(error(k)-error_1)/ts;  % Calculating D  è®¡ç®— D
+    x(3)=x(3)+error(k)*ts;       % Calculating I  è®¡ç®— I
     
     error_2=error_1;error_1=error(k);
 end
